@@ -1,4 +1,5 @@
 import os
+import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -8,13 +9,23 @@ ADMIN_LINK = "https://t.me/NMLVOID"
 admin_id = os.getenv("ADMIN_CHAT_ID")
 ADMIN_CHAT_ID = int(admin_id) if admin_id and admin_id.isdigit() else None
 
+# Ganti kalau webhook n8n kamu berubah
+WEBHOOK_URL = "https://kaynzed.app.n8n.cloud/webhook/lead"
+
 
 async def notify_admin(context: ContextTypes.DEFAULT_TYPE, text: str):
     if ADMIN_CHAT_ID:
         try:
             await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=text)
-        except:
+        except Exception:
             pass
+
+
+def send_to_n8n(data: dict):
+    try:
+        requests.post(WEBHOOK_URL, json=data, timeout=10)
+    except Exception:
+        pass
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -114,12 +125,28 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
+        payload = {
+            "nama": context.user_data.get("name"),
+            "username": context.user_data.get("username"),
+            "score": context.user_data.get("score"),
+            "level": "panas"
+        }
+        send_to_n8n(payload)
+
         await notify_admin(
             context,
             f"🔥 LEAD PANAS\nNama: {context.user_data.get('name')}\nUsername: @{context.user_data.get('username')}\nScore: {context.user_data.get('score')}"
         )
 
     elif query.data == "cold":
+        payload = {
+            "nama": context.user_data.get("name"),
+            "username": context.user_data.get("username"),
+            "score": context.user_data.get("score"),
+            "level": "dingin"
+        }
+        send_to_n8n(payload)
+
         await notify_admin(
             context,
             f"⚠️ LEAD DINGIN\nNama: {context.user_data.get('name')}\nUsername: @{context.user_data.get('username')}"
@@ -138,6 +165,14 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Silakan lanjut ke admin.",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
+
+        payload = {
+            "nama": context.user_data.get("name"),
+            "username": context.user_data.get("username"),
+            "score": context.user_data.get("score"),
+            "level": "admin"
+        }
+        send_to_n8n(payload)
 
         await notify_admin(
             context,
