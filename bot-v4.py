@@ -5,7 +5,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandle
 
 # Ambil dari Railway Variables
 TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_LINK = "https://t.me/NMLVOID"
+ADMIN_LINK = "https://t.me/ORGaming1"
 admin_id = os.getenv("ADMIN_CHAT_ID")
 ADMIN_CHAT_ID = int(admin_id) if admin_id and admin_id.isdigit() else None
 
